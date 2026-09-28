@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>静夜象棋界面</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">象</span>
+    <div class="brand-text">
+      <h1>静夜象棋界面</h1>
+      <p>打谱 · 分析 · 人机对战</p>
+    </div>
+  </div>
+
+  <div class="modes" id="modes">
+    <button class="mode-btn" data-mode="red">引擎执红</button>
+    <button class="mode-btn" data-mode="black">引擎执黑</button>
+    <button class="mode-btn active" data-mode="analyze">分析模式</button>
+  </div>
+
+  <div class="top-actions">
+    <label class="inline">记谱
+      <select id="notation">
+        <option value="cn">中文</option>
+        <option value="trad">繁体</option>
+        <option value="iccs">坐标</option>
+        <option value="wxf">WXF</option>
+      </select>
+    </label>
+    <button class="btn" id="btn-new">新建棋局</button>
+    <button class="btn" id="btn-import">导入棋谱</button>
+    <button class="btn" id="btn-export">导出 PGN</button>
+    <button class="btn" id="btn-copyfen">复制 FEN</button>
+    <button class="btn" id="btn-flip">翻转棋盘</button>
+    <input type="file" id="file-input" accept=".pgn,.xqf,.txt,.PGN,.XQF" hidden>
+  </div>
+</header>
+
+<main>
+  <section class="board-area">
+    <div class="board-wrap">
+      <div class="board" id="board">
+        <svg id="board-svg" viewBox="0 0 900 1000" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="pieces" id="pieces"></div>
+        <div class="side-tag" id="side-tag">红方走棋</div>
+      </div>
+    </div>
+
+    <div class="playbar">
+      <div class="play-buttons">
+        <button class="btn icon" id="btn-first" title="回到开局">⏮</button>
+        <button class="btn icon" id="btn-prev" title="上一步">◀</button>
+        <button class="btn icon primary" id="btn-autoplay" title="自动播放">▶</button>
+        <button class="btn icon" id="btn-next" title="下一步">▶</button>
+        <button class="btn icon" id="btn-last" title="跳到末尾">⏭</button>
+      </div>
+      <div class="play-meta">
+        <span id="move-counter">0 / 0 手</span>
+        <label class="inline">播放间隔
+          <input type="range" id="play-speed" min="0.3" max="5" step="0.1" value="1.2">
+          <span id="play-speed-label">1.2s</span>
+        </label>
+      </div>
+      <div class="play-extra">
+        <button class="btn" id="btn-delete-node" title="删除当前及其后续分支">删除分支</button>
+        <button class="btn" id="btn-promote-node" title="把当前变例设为主线">设为主线</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="sidebar">
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="game">棋谱</button>
+      <button class="tab" data-tab="analysis">分析</button>
+      <button class="tab" data-tab="engine">引擎</button>
+      <button class="tab" data-tab="position">局面</button>
+    </nav>
+
+    <!-- ============ 棋谱 ============ -->
+    <div class="tab-panel active" id="tab-game">
+      <div class="game-head">
+        <div id="game-title" class="game-title">未导入棋谱</div>
+        <div id="game-meta" class="game-meta"></div>
+      </div>
+      <div class="move-list" id="move-list"></div>
+      <div class="comment-box">
+        <label for="comment-input">当前着法评注</label>
+        <textarea id="comment-input" rows="3" placeholder="记录你的想法、变例要点、错着提醒……"></textarea>
+        <button class="btn small" id="btn-save-comment">保存评注</button>
+      </div>
+      <div id="import-report" class="notice hidden"></div>
+    </div>
+
+    <!-- ============ 分析 ============ -->
+    <div class="tab-panel" id="tab-analysis">
+      <div class="engine-strip">
+        <span class="dot" id="engine-dot"></span>
+        <span id="engine-name">未加载引擎</span>
+        <span class="spacer"></span>
+        <button class="btn small" id="btn-analyze-toggle">开始分析</button>
+      </div>
+      <div class="stat-grid">
+        <div><label>深度</label><span id="stat-depth">-</span></div>
+        <div><label>评分</label><span id="stat-score">-</span></div>
+        <div><label>节点</label><span id="stat-nodes">-</span></div>
+        <div><label>速度</label><span id="stat-nps">-</span></div>
+        <div><label>用时</label><span id="stat-time">-</span></div>
+        <div><label>判断</label><span id="stat-judge">-</span></div>
+      </div>
+      <div class="wdl" id="wdl-bar">
+        <div class="wdl-win"></div><div class="wdl-draw"></div><div class="wdl-loss"></div>
+      </div>
+      <canvas id="score-chart" height="90"></canvas>
+      <div class="pv-list" id="pv-list"></div>
+      <div class="hint">
+        点击推荐行可在棋盘上显示箭头，按「走这步」直接把该着法走到棋盘上。
+      </div>
+    </div>
+
+    <!-- ============ 引擎 ============ -->
+    <div class="tab-panel" id="tab-engine">
+      <div class="field">
+        <label>引擎路径（皮卡鱼 Pikafish）</label>
+        <div class="row">
+          <input type="text" id="engine-path" placeholder="例如 D:\\Pikafish\\pikafish.exe">
+          <button class="btn small" id="btn-browse">浏览…</button>
+        </div>
+        <div class="row">
+          <button class="btn small" id="btn-autodetect">自动查找</button>
+          <button class="btn small primary" id="btn-load-engine">加载引擎</button>
+          <button class="btn small" id="btn-unload-engine">卸载</button>
+        </div>
+        <div id="engine-hint" class="hint"></div>
+      </div>
+
+      <div class="engine-group">
+        <h4>对局难度（人机对战）</h4>
+        <div class="field">
+          <label>难度等级 <b id="difficulty-label">6</b> / 10</label>
+          <input type="range" id="difficulty" min="1" max="10" step="1" value="6">
+          <div class="hint" id="difficulty-hint"></div>
+        </div>
+        <div class="field">
+          <label>执子 / 模式</label>
+          <div class="hint">
+            模式在窗口顶部三个按钮里切换：<b>引擎执红</b>（你走黑）、<b>引擎执黑</b>（你走红）、
+            <b>分析模式</b>（引擎只分析、不自动走子）。
+          </div>
+        </div>
+        <button class="btn small" id="btn-engine-move">让引擎立即走一步</button>
+      </div>
+
+      <div class="engine-group">
+        <h4>思考时间与深度（分析）</h4>
+        <div class="field">
+          <label>每步思考时间：<b id="movetime-label">1.5</b> 秒</label>
+          <input type="range" id="movetime" min="200" max="20000" step="100" value="1500">
+        </div>
+        <div class="field">
+          <label>搜索深度上限：<b id="depth-label">不限</b></label>
+          <input type="range" id="depth-limit" min="0" max="30" step="1" value="0">
+        </div>
+        <label class="checkbox"><input type="checkbox" id="infinite"> 持续分析（不限时间，直到手动停止）</label>
+        <label class="checkbox"><input type="checkbox" id="auto-analyze" checked> 局面变化后自动分析</label>
+      </div>
+
+      <div class="engine-group">
+        <h4>引擎资源</h4>
+        <div class="field">
+          <label>线程数（CPU 核心）</label>
+          <input type="number" id="threads" min="1" max="128" step="1" value="4">
+        </div>
+        <div class="field">
+          <label>哈希表（MB）</label>
+          <input type="number" id="hash" min="1" max="8192" step="16" value="128">
+        </div>
+        <div class="field">
+          <label>推荐着法数量（MultiPV）</label>
+          <input type="number" id="multipv" min="1" max="10" step="1" value="3">
+        </div>
+        <label class="checkbox"><input type="checkbox" id="show-wdl" checked> 显示胜率（WDL）</label>
+      </div>
+
+      <div class="engine-group">
+        <h4>引擎自身选项</h4>
+        <div id="engine-options" class="engine-options"></div>
+      </div>
+    </div>
+
+    <!-- ============ 局面 ============ -->
+    <div class="tab-panel" id="tab-position">
+      <div class="stat-grid">
+        <div><label>行棋方</label><span id="pos-side">-</span></div>
+        <div><label>手数</label><span id="pos-ply">-</span></div>
+        <div><label>状态</label><span id="pos-state">-</span></div>
+        <div><label>重复局面</label><span id="pos-repeat">-</span></div>
+        <div><label>红方子力</label><span id="pos-red">-</span></div>
+        <div><label>黑方子力</label><span id="pos-black">-</span></div>
+      </div>
+      <div class="field">
+        <label>FEN（可粘贴后应用）</label>
+        <textarea id="fen-input" rows="3" spellcheck="false"></textarea>
+        <div class="row">
+          <button class="btn small" id="btn-apply-fen">应用局面</button>
+          <button class="btn small" id="btn-copy-fen">复制 FEN</button>
+          <button class="btn small" id="btn-start-pos">回到开局</button>
+        </div>
+        <div class="hint">FEN 形如 rnbakabnr/9/1c5c1/... w - - 0 1，行棋方 w 表示红方。</div>
+      </div>
+      <div class="field">
+        <label>棋谱信息</label>
+        <div id="meta-list" class="meta-list"></div>
+      </div>
+      <div class="field" id="warning-field" style="display:none">
+        <label>导入提示</label>
+        <div id="warning-list" class="warning-list"></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer class="statusbar">
+  <span id="status-message">就绪</span>
+  <span class="spacer"></span>
+  <span id="status-engine">引擎：未加载</span>
+  <span id="status-analysis">分析：-</span>
+</footer>
+
+<div id="toast" class="toast hidden"></div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <strong id="modal-title">选择文件</strong>
+      <button class="btn small" id="modal-close">关闭</button>
+    </div>
+    <div class="modal-path" id="modal-path"></div>
+    <div class="modal-list" id="modal-list"></div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+这个文件夹用于存放象棋引擎（可选）
+
+当前内容：皮卡鱼 Pikafish 2026-09-25 官方发行版（Windows x86-64 universal 通用版）
+  pikafish.exe      引擎主程序（UCI 协议）
+  pikafish.nnue     神经网络权重文件（必须与 pikafish.exe 放在一起）
+
+「静夜象棋界面.exe」启动时会自动搜索引擎，查找顺序包括：
+  1) exe 同目录
+  2) exe 同目录下的 engine\ 文件夹（也就是这里）
+  3) 系统 PATH、桌面、下载、文档等常见位置
+因此把引擎放在本文件夹即可开箱可用；你也可以在界面右侧「引擎」页里手动选择别的引擎。
+
+如果不需要，直接删除本文件夹即可（打谱功能不受影响，只是不能用引擎分析/人机对战）。
+
+版权与许可：
+  皮卡鱼 Pikafish 采用 GNU GPL v3 许可，源码与文档见 https://github.com/official-pikafish/Pikafish
+  许可正文见本文件夹的 Copying.txt；神经网络权重另有说明，见 NNUE-License.md。
+  本程序只是通过标准 UCI 协议调用它，不修改其代码。

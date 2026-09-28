@@ -1,0 +1,7 @@
+# 静夜象棋界面不需要任何第三方依赖：只使用 Python 标准库
+# （http.server、subprocess、json、threading 等）与浏览器原生 API。
+#
+# 因此本文件为空，直接运行 `python run.py` 即可。
+#
+# 运行时唯一的外部程序是象棋引擎（例如皮卡鱼 Pikafish），
+# 由界面选择路径加载，不属于 Python 依赖。

@@ -1,0 +1,16 @@
+{
+  "board_w_ratio": 1.0,
+  "board_h_ratio": 1.0,
+  "margin_left": 0.0,
+  "margin_top": 0.0,
+  "grid_w": 0.8,
+  "grid_h": 0.8,
+  "grid": {
+    "x": 38.0,
+    "y": 51.0,
+    "w": 362.1,
+    "h": 407.4
+  },
+  "board_grid_usable": true,
+  "board_grid_note": "自动校准：按 board.png 上的真实线条重新定位 8×9 网格（最大偏差 1.08px、线条显著度 5.7）"
+}

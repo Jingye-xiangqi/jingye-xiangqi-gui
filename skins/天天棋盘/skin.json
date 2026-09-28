@@ -1,0 +1,10 @@
+{
+  "board_w_ratio": 1.0,
+  "board_h_ratio": 1.0,
+  "margin_left": 0.0,
+  "margin_top": 0.0,
+  "grid_w": 0.8,
+  "grid_h": 0.8,
+  "board_grid_usable": false,
+  "board_grid_note": "未校准（board.png 里没有可用的 8×9 网格）"
+}

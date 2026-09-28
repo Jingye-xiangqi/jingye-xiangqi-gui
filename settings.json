@@ -1,0 +1,56 @@
+{
+  "movetime_ms": 1500,
+  "threads": 1,
+  "hash_mb": 128,
+  "cloud_learn": true,
+  "cloud_timeout": 3.0,
+  "cloud_enabled": true,
+  "book_enabled": true,
+  "book_strategy": "best_score",
+  "book_max_ply": 0,
+  "book_paths": [],
+  "board_theme": "plain",
+  "board_scale": 100,
+  "board_skin": "清幽茶道",
+  "background": "03-意式",
+  "show_arrows": true,
+  "show_numbers": true,
+  "show_statusbar": true,
+  "piece_shadow": true,
+  "sound_enabled": true,
+  "notation": "cn",
+  "flip": false,
+  "multi_pv": 1,
+  "depth_limit": 0,
+  "engine_path": "@builtin/pikafish.exe",
+  "engines": [
+    {
+      "path": "@builtin/pikafish.exe",
+      "name": "Pikafish 2026-09-25",
+      "builtin": true
+    }
+  ],
+  "engine_options_by_engine": {
+    "@builtin/pikafish.exe": {
+      "Threads": 1,
+      "Hash": 128,
+      "Repetition Rule": "SkyRule",
+      "ScoreType": "PawnValueNormalized"
+    }
+  },
+  "link_scan_seconds": 1.0,
+  "link_click_delay_ms": 60,
+  "link_move_delay_ms": 200,
+  "link_back_mode": true,
+  "link_auto_confirm": true,
+  "link_confirm_frames": 3,
+  "link_strict_validate": true,
+  "link_confirm_seconds": 0.6,
+  "link_smart_confirm": true,
+  "link_model_path": "",
+  "link_orientation": "auto",
+  "link_area_x": 0.0,
+  "link_area_y": 0.0,
+  "link_area_w": 100.0,
+  "link_area_h": 100.0
+}
